@@ -13,27 +13,37 @@ variables:
   # Build configuration
   buildConfiguration: 'production'
   # Build directory (replace <your-angular-app-name> with your app folder name)
-  buildDir: 'D:\Angular\dist\browser'
+  buildDir: 'dist/browser'
 
 steps:
-# Step 1: Install Node.js
+# Step 1: Checkout source code
+- task: Checkout@1
+  displayName: 'Checkout source code'
+
+# Step 2: Debug - List files in the workspace
+- script: |
+    echo "Listing files in $(System.DefaultWorkingDirectory):"
+    ls -al
+  displayName: 'Debug: List files in workspace'
+
+# Step 3: Install Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '$(nodeVersion)'
   displayName: 'Install Node.js'
 
-# Step 2: Install Angular CLI and dependencies
+# Step 4: Install Angular CLI and project dependencies
 - script: |
     npm install -g @angular/cli
     npm install
   displayName: 'Install Angular CLI and dependencies'
 
-# Step 3: Build the Angular application
+# Step 5: Build the Angular application
 - script: |
     ng build --configuration=$(buildConfiguration)
   displayName: 'Build Angular application'
 
-# Step 4: Publish build artifacts
+# Step 6: Publish build artifacts
 - task: PublishBuildArtifacts@1
   inputs:
     pathToPublish: '$(buildDir)'

@@ -1,52 +1,38 @@
-# Node.js with Angular
-# Build and deploy an Angular project on Azure DevOps
-
 trigger:
-- main
+  branches:
+    include:
+      - main
 
 pool:
-  vmImage: ubuntu-latest
-
-variables:
-  # Specify the Node.js version to use
-  nodeVersion: '20.x'
-  # Build configuration
-  buildConfiguration: 'production'
-  # Build directory (replace <your-angular-app-name> with your app folder name)
-  buildDir: 'D:\Angular\dist\browser'
+  vmImage: 'ubuntu-latest'
 
 steps:
-# Step 1: Checkout source code
-- task: Checkout@1
-  displayName: 'Checkout source code'
+  # 1. Checkout Code
+  - task: UseNode@1
+    displayName: 'Set Node.js Version'
+    inputs:
+      version: '16.x'  # Use the required Node.js version for your Angular app
 
-# Step 2: Debug - List files in the workspace
-- script: |
-    echo "Listing files in $(System.DefaultWorkingDirectory):"
-    ls -al
-  displayName: 'Debug: List files in workspace'
+  # 2. Install Dependencies
+  - script: |
+      npm install -g @angular/cli
+      npm ci
+    displayName: 'Install Node Modules'
 
-# Step 3: Install Node.js
-- task: NodeTool@0
-  inputs:
-    versionSpec: '$(nodeVersion)'
-  displayName: 'Install Node.js'
+  # 3. Run Tests
+  - script: |
+      npm test
+    displayName: 'Run Unit Tests'
 
-# Step 4: Install Angular CLI and project dependencies
-- script: |
-    npm install -g @angular/cli
-    npm install
-  displayName: 'Install Angular CLI and dependencies'
+  # 4. Build Angular Application
+  - script: |
+      ng build --configuration=production
+    displayName: 'Build Angular Application'
 
-# Step 5: Build the Angular application
-- script: |
-    ng build --configuration=$(buildConfiguration)
-  displayName: 'Build Angular application'
-
-# Step 6: Publish build artifacts
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(buildDir)'
-    artifactName: 'angular-app'
-    publishLocation: 'Container'
-  displayName: 'Publish build artifacts'
+  # 5. Publish Build Artifacts
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Build Artifacts'
+    inputs:
+      pathToPublish: 'dist/Angular'  # Replace <your-app-name> with your Angular app folder name
+      artifactName: 'angular-build'
+      publishLocation: 'Container'

@@ -1,59 +1,43 @@
 trigger:
   branches:
     include:
-      - main  # Runs pipeline on the main branch
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  # 1. Checkout Code
-  - task: Checkout@1
-    displayName: 'Checkout Code'
-
-  # 2. Set Node.js Version
   - task: UseNode@1
     displayName: 'Set Node.js Version'
     inputs:
       version: '18.x'
 
-  # 3. Clean npm Cache (Optional but recommended)
   - script: |
       npm cache clean --force
     displayName: 'Clean npm Cache'
 
-  # 4. Debugging Step (Optional: Lists files to confirm package.json exists)
+  - task: Checkout@1
+    displayName: 'Checkout Code'
+
   - script: |
       ls -al
     displayName: 'List Files in Working Directory'
 
-  # 5. Install Angular CLI Globally
   - script: |
-      npm install -g @angular/cli
-    displayName: 'Install Angular CLI'
-
-  # 6. Install Dependencies
-  - script: |
-      cd <path-to-angular-app>  # Replace with the path to your Angular app if needed
       if [ -f package-lock.json ]; then
-        echo "package-lock.json found, running npm ci..."
-        npm ci || (echo "npm ci failed, running npm install instead..." && npm install)
+        npm ci || npm install
       else
-        echo "package-lock.json not found, running npm install..."
         npm install
       fi
     displayName: 'Install Node Modules'
 
-  # 7. Run Unit Tests
   - script: |
-      cd <path-to-angular-app>  # Replace if needed
-      npm test
-    displayName: 'Run Unit Tests'
-
-  # 8. Build Angular Application
-  - script: |
-      cd <path-to-angular-app>  # Replace if needed
       ng build --configuration=production
     displayName: 'Build Angular Application'
 
- 
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Build Artifacts'
+    inputs:
+      pathToPublish: 'dist/<your-app-name>'
+      artifactName: 'angular-build'
+      publishLocation: 'Container'

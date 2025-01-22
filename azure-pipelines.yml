@@ -6,38 +6,28 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-  - task: UseNode@1
-    displayName: 'Set Node.js Version'
-    inputs:
-      version: '18.x'
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '14.x' # Specify the Node.js version
+            displayName: 'Install Node.js'
 
-  - script: |
-      npm cache clean --force
-    displayName: 'Clean npm Cache'
+          - script: |
+              npm install -g @angular/cli
+              npm install
+            displayName: 'Install Angular CLI and Dependencies'
 
-  - task: Checkout@1
-    displayName: 'Checkout Code'
+          - script: |
+              ng build --prod
+            displayName: 'Build Angular Application'
 
-  - script: |
-      ls -al
-    displayName: 'List Files in Working Directory'
-
-  - script: |
-      if [ -f package-lock.json ]; then
-        npm ci || npm install
-      else
-        npm install
-      fi
-    displayName: 'Install Node Modules'
-
-  - script: |
-      ng build --configuration=production
-    displayName: 'Build Angular Application'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Build Artifacts'
-    inputs:
-      pathToPublish: 'dist/<your-app-name>'
-      artifactName: 'angular-build'
-      publishLocation: 'Container'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'dist' # Adjust this path as necessary
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifacts'

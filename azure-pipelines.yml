@@ -7,25 +7,34 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-  # 1. Set Node.js Version (Upgrade to Node.js >=18)
+  # 1. Checkout Code
+  - task: Checkout@1
+    displayName: 'Checkout Code'
+
+  # 2. Set Node.js Version
   - task: UseNode@1
     displayName: 'Set Node.js Version'
     inputs:
       version: '18.x'
 
-  # 2. Clean npm Cache (Optional but recommended)
+  # 3. Clean npm Cache (Optional but recommended)
   - script: |
       npm cache clean --force
     displayName: 'Clean npm Cache'
 
-  # 3. Install Angular CLI Globally
+  # 4. Debugging Step (Optional: Lists files to confirm package.json exists)
+  - script: |
+      ls -al
+    displayName: 'List Files in Working Directory'
+
+  # 5. Install Angular CLI Globally
   - script: |
       npm install -g @angular/cli
     displayName: 'Install Angular CLI'
 
-  # 4. Install Dependencies with Fallback Logic
-  # First attempt to use npm ci, fallback to npm install if npm ci fails
+  # 6. Install Dependencies
   - script: |
+      cd <path-to-angular-app>  # Replace with the path to your Angular app if needed
       if [ -f package-lock.json ]; then
         echo "package-lock.json found, running npm ci..."
         npm ci || (echo "npm ci failed, running npm install instead..." && npm install)
@@ -35,20 +44,16 @@ steps:
       fi
     displayName: 'Install Node Modules'
 
-  # 5. Run Unit Tests
+  # 7. Run Unit Tests
   - script: |
+      cd <path-to-angular-app>  # Replace if needed
       npm test
     displayName: 'Run Unit Tests'
 
-  # 6. Build Angular Application
+  # 8. Build Angular Application
   - script: |
+      cd <path-to-angular-app>  # Replace if needed
       ng build --configuration=production
     displayName: 'Build Angular Application'
 
-  # 7. Publish Build Artifacts
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Build Artifacts'
-    inputs:
-      pathToPublish: 'dist/<your-app-name>'  # Replace <your-app-name> with your Angular app folder name
-      artifactName: 'angular-build'
-      publishLocation: 'Container'
+ 

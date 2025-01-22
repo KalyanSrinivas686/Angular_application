@@ -17,19 +17,19 @@ stages:
             displayName: 'Install Node.js'
 
           - script: |
-              cd path-to-your-directory-if-needed # Change to your project subdirectory if necessary, otherwise remove this line
+              cd client-app # Change to your project subdirectory if necessary
               npm install -g @angular/cli
               npm install
             displayName: 'Install Angular CLI and Dependencies'
 
           - script: |
-              cd path-to-your-directory-if-needed # Change to your project subdirectory if necessary, otherwise remove this line
+              cd client-app # Change to your project subdirectory if necessary
               ng build --prod
             displayName: 'Build Angular Application'
 
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: 'path-to-your-directory-if-needed/dist' # Adjust this path as necessary
+              PathtoPublish: 'client-app/dist' # Adjust this path as necessary
               ArtifactName: 'drop'
               publishLocation: 'Container'
             displayName: 'Publish Build Artifacts'

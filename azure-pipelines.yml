@@ -13,7 +13,7 @@ steps:
       version: '18.x' # Update to the latest Node.js version
 
   - script: |
-      cd $(System.DefaultWorkingDirectory)
+      cd $(Build.SourcesDirectory)
       npm install -g @angular/cli
       npm install
     displayName: 'Install Dependencies'

@@ -1,5 +1,5 @@
 trigger:
-  - main # Adjust as necessary
+  - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -8,11 +8,12 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-  - task: NodeTool@0
+  - task: UseNode@1
     inputs:
-      versionSpec: '16.x' # Use the latest Node.js version
+      version: '18.x' # Update to the latest Node.js version
 
   - script: |
+      cd $(System.DefaultWorkingDirectory)
       npm install -g @angular/cli
       npm install
     displayName: 'Install Dependencies'
